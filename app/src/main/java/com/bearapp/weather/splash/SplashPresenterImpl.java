@@ -1,5 +1,8 @@
 package com.bearapp.weather.splash;
 
+import android.util.Log;
+
+import com.bearapp.weather.manager.CacheManager;
 import com.bearapp.weather.manager.GlobalDataManager;
 import com.bearapp.weather.model.Weather;
 import com.bearapp.weather.network.CallBack;
@@ -20,6 +23,20 @@ public class SplashPresenterImpl implements SplashPresenter {
 
     @Override
     public void loadWeatherData() {
+
+        Weather localCachedWeather = CacheManager.loadLocalCachedWeatherData();
+
+        if (localCachedWeather != null) {
+            Log.d("Henry", "localCachedWeather!=null");
+            GlobalDataManager globalDataManager = GlobalDataManager.getInstance();
+            globalDataManager.setWeather(localCachedWeather);
+            if (splashView != null) {
+                splashView.showWeatherData(localCachedWeather.HeWeatherDataList.get(0).basic.city + " " + localCachedWeather.HeWeatherDataList.get(0).basic.update.loc);
+                splashView.navigateToHome();
+            }
+            return;
+        }
+
         loadWeatherDataService.loadWeatherData(new CallBack<Weather>() {
 
             @Override
@@ -41,10 +58,12 @@ public class SplashPresenterImpl implements SplashPresenter {
 
             @Override
             public void onSuccess(Weather weather) {
+                Log.d("Henry", "onSuccess");
+                CacheManager.saveWeatherToLocal(weather);
                 GlobalDataManager globalDataManager = GlobalDataManager.getInstance();
                 globalDataManager.setWeather(weather);
                 if (splashView != null) {
-                    splashView.showWeatherData(weather.HeWeatherDataList.get(0).basic.city);
+                    splashView.showWeatherData(weather.HeWeatherDataList.get(0).basic.city + " " + weather.HeWeatherDataList.get(0).basic.update.loc);
                     splashView.navigateToHome();
                 }
             }
@@ -62,7 +81,4 @@ public class SplashPresenterImpl implements SplashPresenter {
         splashView = null;
     }
 
-    public void onError(NetWorkError netWorkError) {
-
-    }
 }

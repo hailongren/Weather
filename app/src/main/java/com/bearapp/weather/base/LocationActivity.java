@@ -5,6 +5,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.amap.api.location.AMapLocation;
 import com.bearapp.amaplib.location.LocationService;
 import com.bearapp.amaplib.location.LocationUtils;
+import com.bearapp.weather.manager.CacheManager;
 import com.bearapp.weather.manager.GlobalDataManager;
 
 /**
@@ -39,16 +40,22 @@ public class LocationActivity extends CheckPermissionsActivity implements OnGetL
 
         @Override
         public void onGetLocation(AMapLocation location) {
-            Location mLocation = new Location();
-            mLocation.setLatitude(location.getLatitude());
-            mLocation.setLongitude(location.getLongitude());
-            mLocation.setCountry(location.getCountry());
-            mLocation.setProvince(location.getProvince());
-            mLocation.setCity(location.getCity());
-            mLocation.setCityCode(location.getCityCode());
-            mLocation.setDistrict(location.getDistrict());
-            mLocation.setAddress(location.getAddress());
-            LocationActivity.this.onGetLocation(mLocation);
+            if (location.getErrorCode() == 0) {
+                Location mLocation = new Location();
+                mLocation.setLatitude(location.getLatitude());
+                mLocation.setLongitude(location.getLongitude());
+                mLocation.setCountry(location.getCountry());
+                mLocation.setProvince(location.getProvince());
+                mLocation.setCity(location.getCity());
+                mLocation.setCityCode(location.getCityCode());
+                mLocation.setDistrict(location.getDistrict());
+                mLocation.setAddress(location.getAddress());
+                CacheManager.saveLocationToLocal(mLocation);
+                LocationActivity.this.onGetLocation(mLocation);
+            } else {
+                Location mLocation = CacheManager.loadLocalCachedLocation();
+                LocationActivity.this.onGetLocation(mLocation);
+            }
         }
     };
 

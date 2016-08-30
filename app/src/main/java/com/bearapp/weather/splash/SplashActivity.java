@@ -22,7 +22,8 @@ public class SplashActivity extends LocationActivity implements SplashView {
     @Override
     public void onGetLocation(Location location) {
         super.onGetLocation(location);
-        splashPresenter.loadWeatherData();
+        if (location != null)
+            splashPresenter.loadWeatherData();
     }
 
     @Override
@@ -34,7 +35,7 @@ public class SplashActivity extends LocationActivity implements SplashView {
 
     @Override
     public void showWeatherData(String data) {
-        Toast.makeText(this,data, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, data, Toast.LENGTH_SHORT).show();
     }
 
     @Override
